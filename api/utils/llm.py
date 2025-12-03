@@ -40,9 +40,14 @@ def call_openrouter(model: str, system: str, tools_schema: list, tool_map: dict,
         print(f"DAILY SPEND LIMIT REACHED (${current_run_spend:.4f} / ${MAX_DAILY_SPEND}). Stopping LLM calls.")
         return "{}"
 
+    # OpenRouter requires specific headers for free/paid tiers sometimes to identify the app
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
         api_key=OPENROUTER_API_KEY,
+        default_headers={
+            "HTTP-Referer": "https://value-arena.vercel.app", # Site URL
+            "X-Title": "Value Investing Arena", # Site Title
+        }
     )
     
     messages = [

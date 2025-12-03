@@ -45,7 +45,11 @@ jobs:
         run: |
           git config --global user.name 'ValueArenaBot'
           git config --global user.email 'bot@valuearena.com'
-          git add data/portfolios/*.json
-          git commit -m "Data: Update portfolios $(date +'%Y-%m-%d')" || exit 0
+          # Ensure directory exists before adding
+          mkdir -p data/portfolios
+          # Add all files in data/portfolios, ignoring errors if empty
+          git add data/portfolios/*.json || echo "No new portfolio files found"
+          # Commit if there are changes
+          git diff --staged --quiet || git commit -m "Data: Update portfolios $(date +'%Y-%m-%d')"
           git push
 
