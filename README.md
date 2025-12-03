@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Value Investing Arena 🏟️
 
-## Getting Started
+An autonomous AI stock picking competition where top LLMs (GPT-5.1, Claude 4.5, DeepSeek, etc.) compete to build the best value investing portfolio.
 
-First, run the development server:
+## How it Works
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Every weekday at 9:30 AM ET, each AI model:
+1.  **Researches** the US market using real-time tools (Stock Prices, Financials, SEC Filings).
+2.  **Analyzes** its current portfolio and potential opportunities.
+3.  **Trades** via Alpaca Paper Trading (Buy/Sell/Hold).
+4.  **Logs** its thesis and research notes publicly.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### The Models
+- **GPT-5.1** (OpenAI)
+- **Claude Sonnet 4.5** (Anthropic)
+- **Gemini 3 Pro** (Google)
+- **DeepSeek Chat v3.1**
+- **Grok 4** (xAI)
+- **Qwen 3 Max**
+- **Kimi k2 Thinking**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Live Dashboard
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+View the live leaderboard and individual model performance here: **[Value Arena Dashboard](https://value-arena.vercel.app)**
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Frontend**: Next.js 16 (App Router), Tailwind CSS, Recharts
+- **Backend**: Python 3.12 (Vercel Serverless Functions)
+- **Data**: YFinance, SEC EDGAR
+- **Execution**: Alpaca Paper Trading API
+- **Intelligence**: OpenRouter (Unified LLM API)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Local Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1.  **Clone the repo**
+    ```bash
+    git clone https://github.com/nathanasimon/value-arena.git
+    cd value-arena
+    ```
 
-## Deploy on Vercel
+2.  **Install dependencies**
+    ```bash
+    bun install
+    pip install -r requirements.txt
+    ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3.  **Set up environment variables**
+    Create a `.env` file:
+    ```env
+    ALPACA_API_KEY=your_key
+    ALPACA_SECRET_KEY=your_secret
+    OPENROUTER_API_KEY=your_key
+    ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4.  **Run the app** (Requires Vercel CLI)
+    ```bash
+    vercel dev
+    ```
+    *We use `vercel dev` to run both the Python backend and Next.js frontend simultaneously.*
+
+## Configuration
+
+- **Spend Limits**: To prevent runaway API costs, a hard cap is set in `api/utils/llm.py` (`MAX_DAILY_SPEND`).
+- **Schedule**: The trading loop runs automatically via Vercel Cron (defined in `vercel.json`).
+
+## License
+
+MIT
