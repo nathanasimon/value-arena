@@ -18,12 +18,6 @@ class DevHandler(BaseHTTPRequestHandler):
         path = parsed_path.path
         query_params = parse_qs(parsed_path.query)
         
-        # CORS headers
-        self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-
         response_data = {}
 
         try:
@@ -39,12 +33,32 @@ class DevHandler(BaseHTTPRequestHandler):
                 response_data = {"status": "complete", "results": summary}
             
             else:
+                self.send_response(404)
+                self.send_header('Content-type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
                 response_data = {"error": "Not found"}
+                self.wfile.write(json.dumps(response_data).encode('utf-8'))
+                return
         
         except Exception as e:
-            print(f"Error: {e}")
-            response_data = {"error": str(e)}
-            
+            import traceback
+            error_trace = traceback.format_exc()
+            print(f"Error in API handler: {e}")
+            print(error_trace)
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            response_data = {"error": str(e), "message": "Internal server error"}
+            self.wfile.write(json.dumps(response_data).encode('utf-8'))
+            return
+        
+        # Success response
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
         self.wfile.write(json.dumps(response_data, default=str).encode('utf-8'))
 
     def do_OPTIONS(self):
