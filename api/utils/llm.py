@@ -40,7 +40,13 @@ def call_openrouter(model: str, system: str, tools_schema: list, tool_map: dict,
         print(f"DAILY SPEND LIMIT REACHED (${current_run_spend:.4f} / ${MAX_DAILY_SPEND}). Stopping LLM calls.")
         return "{}"
 
+    # Check if API key is set
+    if not OPENROUTER_API_KEY:
+        print("ERROR: OPENROUTER_API_KEY is not set!")
+        return "{}"
+    
     # OpenRouter requires specific headers for free/paid tiers sometimes to identify the app
+    # Use "Referer" not "HTTP-Referer" - the OpenAI SDK will handle the HTTP- prefix
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
         api_key=OPENROUTER_API_KEY,
