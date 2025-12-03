@@ -14,6 +14,9 @@ OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 ALPACA_API_KEY = os.environ.get("ALPACA_API_KEY")
 ALPACA_SECRET_KEY = os.environ.get("ALPACA_SECRET_KEY")
 
+# Debug: Check if we're in GitHub Actions
+IS_GITHUB_ACTIONS = os.environ.get("GITHUB_ACTIONS") == "true"
+
 def test_openrouter():
     """Test OpenRouter API key."""
     print("=" * 60)
@@ -54,7 +57,18 @@ def test_openrouter():
             return False
             
     except Exception as e:
-        print(f"❌ OpenRouter API test failed: {e}")
+        error_msg = str(e)
+        print(f"❌ OpenRouter API test failed: {error_msg}")
+        
+        # Provide helpful error messages
+        if "401" in error_msg or "User not found" in error_msg:
+            print("   → This usually means:")
+            print("     1. The API key is invalid or expired")
+            print("     2. The API key doesn't have the right permissions")
+            print("     3. Check your OpenRouter dashboard: https://openrouter.ai/keys")
+        elif "429" in error_msg:
+            print("   → Rate limit exceeded. Wait a moment and try again.")
+        
         return False
 
 def test_alpaca():
@@ -97,13 +111,45 @@ def test_alpaca():
             return False
             
     except Exception as e:
-        print(f"❌ Alpaca API test failed: {e}")
+        error_msg = str(e)
+        print(f"❌ Alpaca API test failed: {error_msg}")
+        
+        # Provide helpful error messages
+        if "401" in error_msg or "unauthorized" in error_msg.lower():
+            print("   → This usually means:")
+            print("     1. The API keys are incorrect")
+            print("     2. You're using live trading keys instead of paper trading keys")
+            print("     3. The account doesn't exist or is disabled")
+            print("     4. Check your Alpaca dashboard: https://app.alpaca.markets/paper/dashboard/overview")
+            print("     5. Make sure you're copying the FULL keys (no spaces or extra characters)")
+        elif "403" in error_msg:
+            print("   → Access forbidden. Check account permissions.")
+        
         return False
 
 if __name__ == "__main__":
     print()
     print("API Key Test Suite")
     print("=" * 60)
+    
+    if IS_GITHUB_ACTIONS:
+        print("🔧 Running in GitHub Actions")
+        print("   Environment: env")
+    else:
+        print("💻 Running locally")
+        print("   Loading from .env file")
+    
+    print()
+    
+    # Check which keys are available
+    print("Checking environment variables...")
+    keys_status = {
+        "OPENROUTER_API_KEY": "✅" if OPENROUTER_API_KEY else "❌",
+        "ALPACA_API_KEY": "✅" if ALPACA_API_KEY else "❌",
+        "ALPACA_SECRET_KEY": "✅" if ALPACA_SECRET_KEY else "❌",
+    }
+    for key, status in keys_status.items():
+        print(f"   {status} {key}")
     print()
     
     results = []
