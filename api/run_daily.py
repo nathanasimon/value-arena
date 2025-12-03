@@ -107,7 +107,8 @@ def run_daily_review():
                     result = execute_trade(
                         ticker=trade["ticker"],
                         side=trade["action"],
-                        amount_usd=amount_usd if amount_usd else 0 # Simplified
+                        amount_usd=amount_usd if amount_usd else 0, # Simplified
+                        model_id=model["id"]  # Pass model_id to use model-specific account
                     )
                     log_trade(model["id"], trade, result)
                     trades_executed.append(result)
@@ -117,7 +118,7 @@ def run_daily_review():
                 save_research_log(model["id"], parsed["research_notes"])
             
             # 7. Update NAV (Fetch from Alpaca)
-            live_port = get_alpaca_portfolio()
+            live_port = get_alpaca_portfolio(model_id=model["id"])  # Use model-specific account
             if "portfolio_value" in live_port:
                 update_nav(model["id"], live_port["portfolio_value"])
                 

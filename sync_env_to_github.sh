@@ -40,15 +40,17 @@ if ! gh auth status &> /dev/null; then
     exit 1
 fi
 
-# Keys we want to sync
-KEYS=("OPENROUTER_API_KEY" "ALPACA_API_KEY" "ALPACA_SECRET_KEY")
+# Base keys we want to sync
+BASE_KEYS=("OPENROUTER_API_KEY" "ALPACA_API_KEY" "ALPACA_SECRET_KEY")
 
 echo "Reading secrets from .env file..."
 echo ""
 
-for KEY in "${KEYS[@]}"; do
+# Sync base keys
+for KEY in "${BASE_KEYS[@]}"; do
     # Extract value from .env (handles KEY=value format, even with quotes)
-    VALUE=$(grep "^${KEY}=" "$ENV_FILE" | cut -d '=' -f2- | sed 's/^"//;s/"$//' | xargs)
+    # Use 'tail -1' to get the LAST occurrence (matches python-dotenv behavior)
+    VALUE=$(grep "^${KEY}=" "$ENV_FILE" | tail -1 | cut -d '=' -f2- | sed 's/^"//;s/"$//' | xargs)
     
     if [ -z "$VALUE" ]; then
         echo -e "${YELLOW}⚠️  ${KEY} not found in .env${NC}"
@@ -68,6 +70,39 @@ for KEY in "${KEYS[@]}"; do
     fi
     echo ""
 done
+
+# Sync model-specific Alpaca keys (ALPACA_API_KEY_* and ALPACA_SECRET_KEY_*)
+echo -e "${BLUE}Syncing model-specific Alpaca keys...${NC}"
+echo ""
+
+MODEL_KEYS=$(grep -E "^ALPACA_(API_KEY|SECRET_KEY)_" "$ENV_FILE" | cut -d '=' -f1 | sort -u)
+
+if [ -z "$MODEL_KEYS" ]; then
+    echo -e "${YELLOW}⚠️  No model-specific Alpaca keys found${NC}"
+    echo "   (This is okay if you're using a single account for all models)"
+else
+    for KEY in $MODEL_KEYS; do
+        # Extract value from .env (handles KEY=value format, even with quotes)
+        VALUE=$(grep "^${KEY}=" "$ENV_FILE" | tail -1 | cut -d '=' -f2- | sed 's/^"//;s/"$//' | xargs)
+        
+        if [ -z "$VALUE" ]; then
+            continue
+        fi
+        
+        echo -e "${BLUE}🔄 Setting ${KEY}...${NC}"
+        
+        # Use GitHub CLI to set the secret
+        echo "$VALUE" | gh secret set "${KEY}" --env "${ENVIRONMENT}" --repo "${REPO}" 2>&1
+        
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}✅ ${KEY} set successfully${NC}"
+            echo "   Preview: ${VALUE:0:15}...${VALUE: -4}"
+        else
+            echo -e "${RED}❌ Failed to set ${KEY}${NC}"
+        fi
+        echo ""
+    done
+fi
 
 echo -e "${GREEN}✅ Sync complete!${NC}"
 echo ""
