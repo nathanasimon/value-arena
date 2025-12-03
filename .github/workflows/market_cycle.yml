@@ -9,6 +9,7 @@ on:
 jobs:
   trade:
     runs-on: ubuntu-latest
+    environment: env  # Use the 'env' environment to access Environment Secrets
     permissions:
       contents: write # Need permission to commit results back to repo
       

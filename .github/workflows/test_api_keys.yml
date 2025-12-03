@@ -9,6 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    environment: env  # Use the 'env' environment to access Environment Secrets
     
     steps:
       - name: Checkout code
