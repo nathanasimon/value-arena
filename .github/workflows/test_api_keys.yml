@@ -36,20 +36,45 @@ jobs:
       - name: Debug Environment Secrets
         run: |
           echo "Checking if secrets are available..."
+          echo ""
           if [ -z "$OPENROUTER_API_KEY" ]; then
             echo "❌ OPENROUTER_API_KEY is not set"
           else
-            echo "✅ OPENROUTER_API_KEY is set (length: ${#OPENROUTER_API_KEY})"
+            echo "✅ OPENROUTER_API_KEY is set"
+            echo "   Length: ${#OPENROUTER_API_KEY}"
+            echo "   First 15 chars: ${OPENROUTER_API_KEY:0:15}"
+            echo "   Last 4 chars: ${OPENROUTER_API_KEY: -4}"
+            # Check for whitespace
+            TRIMMED=$(echo "$OPENROUTER_API_KEY" | xargs)
+            if [ "$OPENROUTER_API_KEY" != "$TRIMMED" ]; then
+              echo "   ⚠️  WARNING: Key has leading/trailing whitespace!"
+            fi
           fi
+          echo ""
           if [ -z "$ALPACA_API_KEY" ]; then
             echo "❌ ALPACA_API_KEY is not set"
           else
-            echo "✅ ALPACA_API_KEY is set (length: ${#ALPACA_API_KEY})"
+            echo "✅ ALPACA_API_KEY is set"
+            echo "   Length: ${#ALPACA_API_KEY}"
+            echo "   First 15 chars: ${ALPACA_API_KEY:0:15}"
+            echo "   Last 4 chars: ${ALPACA_API_KEY: -4}"
+            TRIMMED=$(echo "$ALPACA_API_KEY" | xargs)
+            if [ "$ALPACA_API_KEY" != "$TRIMMED" ]; then
+              echo "   ⚠️  WARNING: Key has leading/trailing whitespace!"
+            fi
           fi
+          echo ""
           if [ -z "$ALPACA_SECRET_KEY" ]; then
             echo "❌ ALPACA_SECRET_KEY is not set"
           else
-            echo "✅ ALPACA_SECRET_KEY is set (length: ${#ALPACA_SECRET_KEY})"
+            echo "✅ ALPACA_SECRET_KEY is set"
+            echo "   Length: ${#ALPACA_SECRET_KEY}"
+            echo "   First 15 chars: ${ALPACA_SECRET_KEY:0:15}"
+            echo "   Last 4 chars: ${ALPACA_SECRET_KEY: -4}"
+            TRIMMED=$(echo "$ALPACA_SECRET_KEY" | xargs)
+            if [ "$ALPACA_SECRET_KEY" != "$TRIMMED" ]; then
+              echo "   ⚠️  WARNING: Key has leading/trailing whitespace!"
+            fi
           fi
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

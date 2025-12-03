@@ -10,9 +10,10 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
-ALPACA_API_KEY = os.environ.get("ALPACA_API_KEY")
-ALPACA_SECRET_KEY = os.environ.get("ALPACA_SECRET_KEY")
+# Get and strip whitespace from environment variables
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "").strip()
+ALPACA_API_KEY = os.environ.get("ALPACA_API_KEY", "").strip()
+ALPACA_SECRET_KEY = os.environ.get("ALPACA_SECRET_KEY", "").strip()
 
 # Debug: Check if we're in GitHub Actions
 IS_GITHUB_ACTIONS = os.environ.get("GITHUB_ACTIONS") == "true"
