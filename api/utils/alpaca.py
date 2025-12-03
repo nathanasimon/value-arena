@@ -1,26 +1,25 @@
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import MarketOrderRequest
 from alpaca.trading.enums import OrderSide, TimeInForce
-from .config import ALPACA_PAPER, get_alpaca_credentials
+from .config import ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_PAPER
 from .research import get_price
 
 def execute_trade(ticker: str, side: str, amount_usd: float, model_id: str = None) -> dict:
     """
     Execute a trade via Alpaca paper trading.
+    Note: All models share the same Alpaca account, but we track positions separately in JSON files.
     
     Args:
         ticker: Stock ticker symbol
         side: "BUY" or "SELL"
         amount_usd: Dollar amount to trade
-        model_id: Optional model ID to use model-specific Alpaca account
+        model_id: Model ID for tracking purposes (not used for account selection)
     """
-    api_key, secret_key = get_alpaca_credentials(model_id) if model_id else get_alpaca_credentials("")
-    
-    if not api_key or not secret_key:
-        print(f"Alpaca credentials missing for model: {model_id or 'default'}")
+    if not ALPACA_API_KEY or not ALPACA_SECRET_KEY:
+        print("Alpaca credentials missing.")
         return {"error": "Credentials missing"}
 
-    client = TradingClient(api_key, secret_key, paper=ALPACA_PAPER)
+    client = TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=ALPACA_PAPER)
     
     # Get current price to calculate shares
     price_data = get_price(ticker)
@@ -39,21 +38,36 @@ def execute_trade(ticker: str, side: str, amount_usd: float, model_id: str = Non
         time_in_force=TimeInForce.DAY
     )
     
-    return client.submit_order(order)
+    try:
+        order_result = client.submit_order(order)
+        # Convert Alpaca order object to dict for easier tracking
+        return {
+            "id": str(order_result.id) if hasattr(order_result, 'id') else None,
+            "status": str(order_result.status) if hasattr(order_result, 'status') else None,
+            "filled_qty": float(order_result.filled_qty) if hasattr(order_result, 'filled_qty') else qty,
+            "filled_avg_price": float(order_result.filled_avg_price) if hasattr(order_result, 'filled_avg_price') else price,
+            "qty": float(order_result.qty) if hasattr(order_result, 'qty') else qty,
+            "price": price,
+            "symbol": ticker,
+            "side": side
+        }
+    except Exception as e:
+        print(f"Error executing trade: {e}")
+        return {"error": str(e), "symbol": ticker, "side": side}
 
 def get_alpaca_portfolio(model_id: str = None) -> dict:
     """
-    Get current positions and account info.
+    Get current positions and account info from Alpaca.
+    Note: This returns the shared Alpaca account data. For model-specific portfolios,
+    use the portfolio tracking system in utils/portfolio.py instead.
     
     Args:
-        model_id: Optional model ID to use model-specific Alpaca account
+        model_id: Not used (kept for compatibility)
     """
-    api_key, secret_key = get_alpaca_credentials(model_id) if model_id else get_alpaca_credentials("")
-    
-    if not api_key or not secret_key:
-        return {"error": f"Credentials missing for model: {model_id or 'default'}"}
+    if not ALPACA_API_KEY or not ALPACA_SECRET_KEY:
+        return {"error": "Credentials missing"}
 
-    client = TradingClient(api_key, secret_key, paper=ALPACA_PAPER)
+    client = TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=ALPACA_PAPER)
     account = client.get_account()
     positions = client.get_all_positions()
     

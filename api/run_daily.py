@@ -107,8 +107,8 @@ def run_daily_review():
                     result = execute_trade(
                         ticker=trade["ticker"],
                         side=trade["action"],
-                        amount_usd=amount_usd if amount_usd else 0, # Simplified
-                        model_id=model["id"]  # Pass model_id to use model-specific account
+                        amount_usd=amount_usd if amount_usd else 0,
+                        model_id=model["id"]  # Pass model_id for tracking purposes only
                     )
                     log_trade(model["id"], trade, result)
                     trades_executed.append(result)
@@ -117,10 +117,9 @@ def run_daily_review():
             if "research_notes" in parsed:
                 save_research_log(model["id"], parsed["research_notes"])
             
-            # 7. Update NAV (Fetch from Alpaca)
-            live_port = get_alpaca_portfolio(model_id=model["id"])  # Use model-specific account
-            if "portfolio_value" in live_port:
-                update_nav(model["id"], live_port["portfolio_value"])
+            # 7. Update NAV (Calculate from tracked positions, not Alpaca)
+            # We track positions separately for each model in JSON files
+            update_nav(model["id"])  # Calculates NAV from tracked positions
                 
             results.append({"model": model["id"], "status": "success", "trades": len(trades_executed)})
             
