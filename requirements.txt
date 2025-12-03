@@ -1,0 +1,9 @@
+yfinance
+alpaca-py
+openai
+python-dotenv
+pandas
+requests
+lxml
+pydantic
+

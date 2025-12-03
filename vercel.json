@@ -1,0 +1,13 @@
+{
+    "crons": [
+        {
+            "path": "/api/run_daily",
+            "schedule": "30 13 * * 1-5"
+        }
+    ],
+    "rewrites": [
+        { "source": "/api/portfolios", "destination": "/api/portfolios" },
+        { "source": "/api/portfolio", "destination": "/api/portfolios" }
+    ]
+}
+
