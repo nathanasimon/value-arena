@@ -17,7 +17,7 @@ Every weekday at 9:30 AM ET, each AI model:
 - **DeepSeek Chat v3.1**
 - **Grok 4** (xAI)
 - **Qwen 3 Max**
-- **Kimi k2 Thinking**
+- **Kimi-K2 Thinking**
 
 ## Live Dashboard
 
