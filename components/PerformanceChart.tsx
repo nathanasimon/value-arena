@@ -9,13 +9,13 @@ interface PerformanceChartProps {
 }
 
 const COLORS = [
+  '#eab308', // yellow-500 (Gold)
   '#3b82f6', // blue-500
   '#ef4444', // red-500
   '#10b981', // emerald-500
-  '#f59e0b', // amber-500
+  '#f97316', // orange-500
   '#8b5cf6', // violet-500
   '#ec4899', // pink-500
-  '#06b6d4', // cyan-500
 ];
 
 export function PerformanceChart({ portfolios }: PerformanceChartProps) {
@@ -27,8 +27,8 @@ export function PerformanceChart({ portfolios }: PerformanceChartProps) {
 
   if (!mounted) {
     return (
-      <div className="h-[400px] w-full bg-zinc-900 border border-zinc-800 rounded-lg p-4 flex items-center justify-center">
-        <div className="text-zinc-500">Loading chart...</div>
+      <div className="h-[350px] w-full flex items-center justify-center">
+        <div className="text-zinc-600 text-xs font-mono animate-pulse">INITIALIZING VISUALIZATION...</div>
       </div>
     );
   }
@@ -43,13 +43,9 @@ export function PerformanceChart({ portfolios }: PerformanceChartProps) {
     const row: any = { date };
     portfolios.forEach(p => {
       const point = p.nav_history.find(n => n.date === date);
-      // Fill forward logic or null? 
-      // If missing, maybe use previous known value or starting capital?
-      // For simplicity, we'll find the point or undefined.
       if (point) {
         row[p.model_id] = point.nav;
       } else {
-        // Try to find last known value before this date
         const lastKnown = [...p.nav_history]
           .sort((a, b) => a.date.localeCompare(b.date))
           .filter(n => n.date < date)
@@ -61,29 +57,45 @@ export function PerformanceChart({ portfolios }: PerformanceChartProps) {
   });
 
   return (
-    <div className="h-[400px] w-full bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-      <h3 className="text-sm font-medium text-zinc-400 mb-4">Total Return Performance</h3>
+    <div className="h-[350px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+        <LineChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
           <XAxis 
             dataKey="date" 
-            stroke="#71717a" 
-            fontSize={12} 
+            stroke="#52525b" 
+            fontSize={10} 
             tickFormatter={(val) => new Date(val).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+            axisLine={false}
+            tickLine={false}
+            dy={10}
           />
           <YAxis 
-            stroke="#71717a" 
-            fontSize={12} 
+            stroke="#52525b" 
+            fontSize={10} 
             domain={['auto', 'auto']}
             tickFormatter={(val) => `$${val.toLocaleString()}`}
+            axisLine={false}
+            tickLine={false}
+            dx={-10}
           />
           <Tooltip 
-            contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a' }}
-            itemStyle={{ color: '#e4e4e7' }}
-            labelStyle={{ color: '#a1a1aa' }}
+            contentStyle={{ 
+                backgroundColor: 'rgba(24, 24, 27, 0.9)', 
+                borderColor: '#27272a',
+                borderRadius: '4px',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.5)',
+                fontSize: '12px'
+            }}
+            itemStyle={{ padding: 0 }}
+            labelStyle={{ color: '#a1a1aa', marginBottom: '4px' }}
           />
-          <Legend />
+          <Legend 
+            wrapperStyle={{ paddingTop: '20px' }}
+            iconType="circle"
+            iconSize={8}
+            formatter={(value) => <span className="text-xs text-zinc-400 ml-1">{value.split('/').pop()}</span>}
+          />
           {portfolios.map((p, i) => (
             <Line
               key={p.model_id}
@@ -92,6 +104,7 @@ export function PerformanceChart({ portfolios }: PerformanceChartProps) {
               stroke={COLORS[i % COLORS.length]}
               strokeWidth={2}
               dot={false}
+              activeDot={{ r: 4, strokeWidth: 0 }}
             />
           ))}
         </LineChart>
@@ -99,4 +112,3 @@ export function PerformanceChart({ portfolios }: PerformanceChartProps) {
     </div>
   );
 }
-

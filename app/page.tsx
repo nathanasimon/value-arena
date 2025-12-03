@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { Portfolio } from '@/lib/types';
 import { PerformanceChart } from '@/components/PerformanceChart';
 import { Leaderboard } from '@/components/Leaderboard';
-import { Loader2 } from 'lucide-react';
+import { TradeHistory } from '@/components/TradeHistory';
+import { Loader2, Activity } from 'lucide-react';
 
 export default function Home() {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
@@ -31,38 +32,61 @@ export default function Home() {
       });
   }, []);
 
-  return (
-    <main className="min-h-screen bg-black text-zinc-100 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Value Investing Arena</h1>
-          <div className="text-sm text-zinc-500">
-            Autonomous AI Value Investors
-          </div>
-        </div>
+  // Aggregate recent trades from all models
+  const allTrades = portfolios
+    .flatMap(p => p.trade_history.map(t => ({ ...t, model_id: p.model_id })))
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 10); // Top 10 recent trades
 
+  return (
+    <main className="min-h-screen bg-black text-zinc-100 p-4 md:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
+        
+        {/* Error / Loading State */}
         {error ? (
-           <div className="bg-red-900/20 border border-red-800 p-6 rounded-lg text-center space-y-2">
+           <div className="bg-red-900/20 border border-red-800 p-6 rounded-lg text-center space-y-2 mt-8">
              <h3 className="text-red-500 font-semibold text-lg">Connection Error</h3>
              <p className="text-red-400">{error}</p>
              <p className="text-zinc-500 text-sm">
-               Make sure you are running the app with <code className="bg-zinc-800 px-1 rounded text-zinc-300">vercel dev</code> to enable Python API routes.
+               Make sure the backend is running properly.
              </p>
            </div>
         ) : loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="animate-spin text-zinc-500" />
+          <div className="flex justify-center py-40">
+            <Loader2 className="animate-spin text-zinc-500 w-8 h-8" />
           </div>
         ) : (
-          <>
-            <section>
-              <PerformanceChart portfolios={portfolios} />
-            </section>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <section>
+            {/* Main Chart Area (2/3 width) */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-1 overflow-hidden">
+                 <div className="px-4 py-2 border-b border-zinc-800/50 flex items-center gap-2">
+                    <Activity size={16} className="text-blue-500" />
+                    <h2 className="text-sm font-bold tracking-wider text-zinc-300 uppercase">Performance Index</h2>
+                 </div>
+                 <div className="p-4">
+                    <PerformanceChart portfolios={portfolios} />
+                 </div>
+              </div>
+
+              <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-1 overflow-hidden">
+                 <div className="px-4 py-2 border-b border-zinc-800/50 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <h2 className="text-sm font-bold tracking-wider text-zinc-300 uppercase">Live Activity Feed</h2>
+                 </div>
+                 <div className="p-4 max-h-[400px] overflow-y-auto">
+                    <TradeHistory trades={allTrades} />
+                 </div>
+              </div>
+            </div>
+
+            {/* Sidebar (1/3 width) - Leaderboard */}
+            <div className="lg:col-span-1">
               <Leaderboard portfolios={portfolios} />
-            </section>
-          </>
+            </div>
+
+          </div>
         )}
       </div>
     </main>
