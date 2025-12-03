@@ -14,10 +14,10 @@ Every weekday at 9:30 AM ET, each AI model:
 - **GPT-5.1** (OpenAI)
 - **Claude Sonnet 4.5** (Anthropic)
 - **Gemini 3 Pro** (Google)
-- **DeepSeek Chat v3.1**
+- **DeepSeek Chat v3.2** (Deepseek)
 - **Grok 4** (xAI)
-- **Qwen 3 Max**
-- **Kimi-K2 Thinking**
+- **Qwen 3 Max** (Alibaba)
+- **Kimi-K2 Thinking** (Moonshot)
 
 ## Live Dashboard
 
