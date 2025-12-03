@@ -3,9 +3,8 @@
 import { useEffect, useState } from 'react';
 import { Portfolio } from '@/lib/types';
 import { PerformanceChart } from '@/components/PerformanceChart';
-import { Leaderboard } from '@/components/Leaderboard';
 import { TradeHistory } from '@/components/TradeHistory';
-import { Loader2, Activity } from 'lucide-react';
+import { Loader2, Activity, TrendingUp } from 'lucide-react';
 
 export default function Home() {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
@@ -36,54 +35,63 @@ export default function Home() {
   const allTrades = portfolios
     .flatMap(p => p.trade_history.map(t => ({ ...t, model_id: p.model_id })))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 10); // Top 10 recent trades
+    .slice(0, 20); // Top 20 recent trades for a fuller feed
 
   return (
-    <main className="min-h-screen bg-black text-zinc-100 p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <main className="min-h-screen bg-gray-50 text-zinc-900 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Error / Loading State */}
         {error ? (
-           <div className="bg-red-900/20 border border-red-800 p-6 rounded-lg text-center space-y-2 mt-8">
-             <h3 className="text-red-500 font-semibold text-lg">Connection Error</h3>
-             <p className="text-red-400">{error}</p>
+           <div className="bg-red-50 border border-red-200 p-6 rounded-xl text-center space-y-2 mt-8 shadow-sm">
+             <h3 className="text-red-600 font-semibold text-lg">Connection Error</h3>
+             <p className="text-red-500">{error}</p>
              <p className="text-zinc-500 text-sm">
                Make sure the backend is running properly.
              </p>
            </div>
         ) : loading ? (
           <div className="flex justify-center py-40">
-            <Loader2 className="animate-spin text-zinc-500 w-8 h-8" />
+            <Loader2 className="animate-spin text-zinc-400 w-8 h-8" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="flex flex-col gap-8">
             
-            {/* Main Chart Area (2/3 width) */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-1 overflow-hidden">
-                 <div className="px-4 py-2 border-b border-zinc-800/50 flex items-center gap-2">
-                    <Activity size={16} className="text-blue-500" />
-                    <h2 className="text-sm font-bold tracking-wider text-zinc-300 uppercase">Performance Index</h2>
+            {/* Top Section: Performance Chart */}
+            <div className="w-full space-y-4">
+              <div className="bg-white border border-zinc-200 rounded-xl p-1 overflow-hidden shadow-sm">
+                 <div className="px-6 py-4 border-b border-zinc-100 flex items-center gap-3">
+                    <div className="p-2 bg-blue-50 rounded-lg">
+                      <Activity size={18} className="text-blue-600" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-bold tracking-tight text-zinc-900">Performance Index</h2>
+                      <p className="text-xs text-zinc-500 font-medium">Total Return Over Time</p>
+                    </div>
                  </div>
-                 <div className="p-4">
+                 <div className="p-6">
                     <PerformanceChart portfolios={portfolios} />
-                 </div>
-              </div>
-
-              <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-1 overflow-hidden">
-                 <div className="px-4 py-2 border-b border-zinc-800/50 flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    <h2 className="text-sm font-bold tracking-wider text-zinc-300 uppercase">Live Activity Feed</h2>
-                 </div>
-                 <div className="p-4 max-h-[400px] overflow-y-auto">
-                    <TradeHistory trades={allTrades} />
                  </div>
               </div>
             </div>
 
-            {/* Sidebar (1/3 width) - Leaderboard */}
-            <div className="lg:col-span-1">
-              <Leaderboard portfolios={portfolios} />
+            {/* Bottom Section: Live Activity Feed */}
+            <div className="w-full space-y-4">
+              <div className="bg-white border border-zinc-200 rounded-xl p-1 overflow-hidden shadow-sm">
+                 <div className="px-6 py-4 border-b border-zinc-100 flex items-center gap-3">
+                    <div className="p-2 bg-green-50 rounded-lg relative">
+                      <TrendingUp size={18} className="text-green-600" />
+                      <span className="absolute top-0 right-0 -mr-1 -mt-1 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white animate-pulse"></span>
+                    </div>
+                    <div>
+                      <h2 className="text-base font-bold tracking-tight text-zinc-900">Live Activity Feed</h2>
+                      <p className="text-xs text-zinc-500 font-medium">Real-time trading decisions from all models</p>
+                    </div>
+                 </div>
+                 <div className="p-6">
+                    <TradeHistory trades={allTrades} />
+                 </div>
+              </div>
             </div>
 
           </div>

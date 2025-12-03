@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
-import { MODELS } from '@/api/utils/config'; // We'll need to expose MODELS to frontend or duplicate config
+import { ChevronDown } from 'lucide-react';
 
 // Mock models list for UI since we can't import python config directly in client component easily without API
 const UI_MODELS = [
@@ -20,49 +20,52 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-zinc-800 bg-black/90 backdrop-blur-md">
-      <div className="max-w-[98vw] mx-auto px-4">
-        <div className="flex h-14 items-center justify-between">
-          <div className="flex items-center gap-4">
+    <nav className="sticky top-0 z-50 border-b border-zinc-200 bg-white/80 backdrop-blur-md">
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
+        <div className="flex h-16 items-center justify-between">
+          <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2">
-               <span className="text-xl font-bold tracking-tighter text-white">VALUE<span className="text-zinc-500">ARENA</span></span>
+               <span className="text-lg font-bold tracking-tight text-zinc-900">Value<span className="text-zinc-400">Arena</span></span>
             </Link>
-          </div>
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center space-x-6 absolute left-1/2 -translate-x-1/2">
-            <Link href="/" className={clsx("text-xs font-bold tracking-wider hover:text-blue-400 transition-colors", pathname === "/" ? "text-white" : "text-zinc-500")}>
-              LIVE
-            </Link>
-            <span className="text-zinc-800">|</span>
-            <Link href="/leaderboard" className={clsx("text-xs font-bold tracking-wider hover:text-blue-400 transition-colors", pathname === "/leaderboard" ? "text-white" : "text-zinc-500")}>
-              LEADERBOARD
-            </Link>
-            <span className="text-zinc-800">|</span>
-            
-            <div className="group relative">
-              <button className="text-xs font-bold tracking-wider text-zinc-500 hover:text-blue-400 transition-colors">
-                MODELS
-              </button>
-              <div className="invisible absolute left-1/2 -translate-x-1/2 top-full z-50 mt-2 w-48 border border-zinc-800 bg-black p-1 opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">
-                {UI_MODELS.map((model) => (
-                  <Link 
-                    key={model.id}
-                    href={`/model/${encodeURIComponent(model.id)}`}
-                    className="block px-3 py-2 text-xs text-zinc-400 hover:bg-zinc-900 hover:text-white transition-colors"
-                  >
-                    {model.display}
-                  </Link>
-                ))}
+            {/* Desktop Nav */}
+            <div className="hidden md:flex items-center space-x-1">
+              <Link href="/" className={clsx("px-3 py-2 rounded-md text-sm font-medium transition-colors", pathname === "/" ? "bg-zinc-100 text-zinc-900" : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50")}>
+                Live
+              </Link>
+              <Link href="/leaderboard" className={clsx("px-3 py-2 rounded-md text-sm font-medium transition-colors", pathname === "/leaderboard" ? "bg-zinc-100 text-zinc-900" : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50")}>
+                Leaderboard
+              </Link>
+              
+              <div className="group relative px-3 py-2">
+                <button className="flex items-center gap-1 text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors">
+                  Models <ChevronDown size={14} />
+                </button>
+                <div className="invisible absolute left-0 top-full z-50 mt-1 w-56 border border-zinc-200 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 transition-all duration-200 group-hover:visible group-hover:opacity-100 overflow-hidden">
+                  <div className="py-1">
+                    {UI_MODELS.map((model) => (
+                      <Link 
+                        key={model.id}
+                        href={`/model/${encodeURIComponent(model.id)}`}
+                        className="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900"
+                      >
+                        {model.display}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Right Side (Actions/Status) */}
           <div className="flex items-center gap-4">
-             <div className="flex items-center gap-2 text-[10px] text-zinc-500">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                MARKET OPEN
+             <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-full">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                <span className="text-xs font-medium text-zinc-600">Market Open</span>
              </div>
           </div>
         </div>
@@ -70,4 +73,3 @@ export function Header() {
     </nav>
   );
 }
-
