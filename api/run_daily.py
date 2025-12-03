@@ -129,6 +129,13 @@ def run_daily_review():
 
     return results
 
+# For Vercel Serverless, we must export 'handler' but Vercel python runtime 
+# usually looks for 'handler' variable which is an instance of BaseHTTPRequestHandler subclass,
+# OR a function 'handler(request, response)'. 
+# The standard way in Vercel Python runtime for HTTP is a subclass of BaseHTTPRequestHandler.
+# But the variable name must be 'handler' = class, not an instance.
+# Wait, Vercel documentation says: "The entry point should be a file that exports a function named handler or a class named handler that inherits from BaseHTTPRequestHandler."
+
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:

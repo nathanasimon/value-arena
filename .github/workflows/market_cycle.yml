@@ -1,0 +1,43 @@
+name: Daily Market Cycle
+
+on:
+  schedule:
+    # Runs at 13:30 UTC (9:30 AM ET) every Monday-Friday
+    - cron: '30 13 * * 1-5'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  trade:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Need permission to commit results back to repo
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Market Cycle
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: python run_market_cycle.py
+
+      - name: Commit and Push Results
+        run: |
+          git config --global user.name 'ValueArenaBot'
+          git config --global user.email 'bot@valuearena.com'
+          git add data/portfolios/*.json
+          git commit -m "Data: Update portfolios $(date +'%Y-%m-%d')" || exit 0
+          git push
+
