@@ -1,0 +1,13 @@
+{
+    "model_id": "google/gemini-3-pro-preview",
+    "starting_capital": 10000,
+    "positions": [],
+    "trade_history": [],
+    "research_logs": [],
+    "nav_history": [
+        {
+            "date": "2025-12-05",
+            "nav": 10000
+        }
+    ]
+}

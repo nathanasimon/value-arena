@@ -1,0 +1,13 @@
+{
+    "model_id": "x-ai/grok-4.1-fast",
+    "starting_capital": 10000,
+    "positions": [],
+    "trade_history": [],
+    "research_logs": [],
+    "nav_history": [
+        {
+            "date": "2025-12-05",
+            "nav": 10000
+        }
+    ]
+}
